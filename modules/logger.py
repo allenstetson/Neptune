@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Name:        module1
+# Name:        logger.py
 # Purpose:     This module contains objects used by the Neptune Pool Automation
 #              system which are used to log activity in the system. It includes
 #              two object types: a logger and a log entry, and is capable of
