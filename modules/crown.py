@@ -178,16 +178,16 @@ class NeptuneCrown(object):
     def updateSensorDevice(self, destId, newValue, author='0000'):
         """
         Given the ID of a sensor device, queries device for an update
-        :param destId: Device ID of the switch to be manipulated
+        :param destId: Device ID of the sensor to be updated
         :type destId: str
-        :param newValue: New value (not required, but here for future options)
+        :param newValue: New value
         :type newValue: int
         :param author: Device ID of the object requesting the change
         :return: Either a serial command or failure code, and human readable text
         :rtype: tuple
         """
         self.logger.author = author
-        commandStr = "Query sensor device %s with %s." % (destId, newValue)
+        commandStr = "Updating sensor device %s to %s." % (destId, newValue)
 
         # Check for the device existence
         if not str(destId) in self.devices.keys():
@@ -206,11 +206,20 @@ class NeptuneCrown(object):
             self.logger.logCommand(destId, commandStr, failure)
             return failure
 
-        # newValue can be any number and an update will be sent. If future development includes
-        #  a different function to be performed with newValue, place that function here
+        # Make sure new value is within rage
+        minVal = self.devices[destId]['minValue']
+        maxVal = self.devices[destId]['maxValue']
+        if int(newValue) < int(minVal):
+            failure = (0, "New value %s is below minimum %s." % (newValue, minVal))
+            self.logger.logCommand(destId, commandStr, failure)
+            return failure
+        if int(newValue) > int(maxVal):
+            failure = (0, "New value %s is above maximum %s." % (newValue, maxVal))
+            self.logger.logCommand(destId, commandStr, failure)
+            return failure
 
         # Great! Format some pretty output
-        prettyDescription = "Device %s has been queried for an update." % self.devices[destId]['name']
+        prettyDescription = "Device %s has been updated to value %s." % (self.devices[destId]['name'], newValue)
         # Construct serial command
         success = (">%s%s%s" % (destId, typeCode, newValue), prettyDescription)
         self.logger.logCommand(destId, commandStr, success)
